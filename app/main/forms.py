@@ -13,16 +13,17 @@ class UpdateProfile(FlaskForm):
    bio = TextAreaField('Tell us about you.',validators = [Required()])
    submit = SubmitField('Submit')
 
-class ReviewForm(FlaskForm):
+class PitchForm(FlaskForm):
+   pitch_content = TextAreaField('Your pitch')
+   submit = SubmitField('submit')
 
-   title = StringField('Review title',validators=[Required()])
+class CommentForm():
+   pitch_comment = TextAreaField('Write your comment')
+   submit = SubmitField('submit')
 
-   review = TextAreaField('Movie review')
-
-   submit = SubmitField('Submit')
-
-
-# class CommentForm(FlaskForm):
+class CategoryForm(FlaskForm):
+   name = StringField('category Name',validators = [Required()])
+   submit = SubmitField('submit')
 #    name =  StringField('Comment name',validators=[Required()])
 #    comment = TextAreaField('Pitch comment')
 #    submit = SubmitField('Submit')
