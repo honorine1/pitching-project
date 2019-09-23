@@ -25,7 +25,7 @@ class User(UserMixin,db.Model):
     
     comment = db.relationship('Comments',backref = 'user',lazy = "dynamic")
     pitches = db.relationship('Pitch',backref = 'user',lazy = "dynamic")
-    vote = db.relationship("Votes", backref ="user", lazy="dynamic")
+    # vote = db.relationship("Votes", backref ="user", lazy="dynamic")
 
     @property
     def password(self):
@@ -67,11 +67,7 @@ class Review(db.Model):
         reviews = Review.query.filter_by(movie_id=id).all()
         return reviews
 
-
-        
-
-
-class comments(db.Model):
+class Comments(db.Model):
     
 
     __tablename__ = 'comments'
@@ -105,7 +101,8 @@ class Category(db.Model):
 
     @classmethod
     def get_categories(cls,id):
-        categories = Category.query.filter_by(category_id=id).all()
+        # categories = Category.query.all()
+        category = Category.query.filter_by(id=id).first()
         return categories
 
 
@@ -121,7 +118,7 @@ class Pitch(db.Model):
     user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
     comment = db.relationship('Comments',backref = 'pitches', lazy='dynamic')
     category_id = db.Column(db.Integer,db.ForeignKey("categories.id"))
-    vote = db.relationship("votes",backref="pitches",lazy = "dynamic")
+    # vote = db.relationship("votes",backref="pitches",lazy = "dynamic")
 
 
     def save_pitch(self):

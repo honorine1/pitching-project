@@ -1,0 +1,51 @@
+<!-- {% extends 'base.html'%}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="col-md-8">
+
+            <img src="{{movie.poster}}" alt="{{movie.title}}" class="img-responsive">
+        </div>
+
+        <div class="col-md-4">
+
+            {{ wtf.quick_form(review_form) }}
+        </div>
+        <div class="col-md-4">
+            {{ wtf.quick_form(review_form) }}
+            {{simplemde.load}}
+        </div>
+
+    </div>
+
+{% endblock %} -->
+
+
+
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf%}
+
+<!-- Styles block -->
+{% block styles%}
+    {{ super() }}
+
+{% endblock %}
+
+<!-- Content block -->
+{% block content %}
+    <title> {{ title }} </title>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2 col-lg-2">
+            </div>
+            <div class=" col-xs-12 col-sm-12 col-md-8 col-lg-8 create-group">
+                {{ wtf.quick_form(category_form) }}
+            </div>
+            <div class="col-md-2 col-lg-2">
+            </div>
+        </div>
+    </div>
+{% endblock %}

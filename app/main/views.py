@@ -1,18 +1,14 @@
 
 from flask import render_template,request,redirect,url_for,abort
 from . import main
-# from ..request import get_movies,get_movie,search_movie
-from .forms import ReviewForm,UpdateProfile
-from ..forms import ReviewForm
-from ..models import  User
-# from flask_login import login_required
+from .forms import PitchForm,CommentForm,CategoryForm
+from ..models import  User,Pitch,Comments,Category
 from flask_login import login_required, current_user
-from .. import db,photos
-import markdown2  
+from .. import db 
 
 
 
-# Views
+# DISPLAY CATEGORIES IN THE LANDING PAGE
 @main.route('/')
 def index():
 
@@ -20,117 +16,93 @@ def index():
     View root page function that returns the index page and its data
     '''
 
-    # Getting popular movie
-    # popular_movies = get_movies('popular')
-    # upcoming_movie = get_movies('upcoming')
-    # now_showing_movie = get_movies('now_playing')
+    category = Category.get_categories(id) 
 
-    title = 'Home - Welcome to The best Movie Review Website Online'
-
-    # search_movie = request.args.get('movie_query')
-
-    # if search_movie:
-    #     return redirect(url_for('.search',movie_name=search_movie))
-    # else:
-    #     return render_template('index.html', title = title, popular = popular_movies, upcoming = upcoming_movie, now_showing = now_showing_movie )
-    return render_template('index.html', title = title)
+    title = 'Home - Welcome '
+    return render_template('index.html', title = title, categories = category)
 
 
-# @main.route('/movie/<int:id>')
-# def movie(id):
+# to add new pitch
 
-#     '''
-#     View movie page function that returns the movie details page and its data
-#     '''
-#     movie = get_movie(id)
-#     title = f'{movie.title}'
-#     reviews = Review.get_reviews(movie.id)
-
-#     return render_template('movie.html',title = title,movie = movie,reviews = reviews)
-
-
-
-# @main.route('/search/<movie_name>')
-# def search(movie_name):
-#     '''
-#     View function to display the search results
-#     '''
-#     movie_name_list = movie_name.split(" ")
-#     movie_name_format = "+".join(movie_name_list)
-#     searched_movies = search_movie(movie_name_format)
-#     title = f'search results for {movie_name}'
-#     return render_template('search.html',movies = searched_movies)
-
-
-
-@main.route('/movie/review/new/<int:id>', methods = ['GET','POST'])
+@main.route('/category/new-pitch/<int:id>',methods=['GET','POST'])
 @login_required
-def new_review(id):
-    form = ReviewForm()
-    movie = get_movie(id)
-    if form.validate_on_submit():
-        title = form.title.data
-        review = form.review.data
+def new_pitch(id):
 
-        #Updated review instance
-        new_review = Review(movie_id=movie.id,movie_title=title,image_path=movie.poster,movie_review=review,user=current_user)
+    form = PitchForm()
+    category = Category.query.filter_by(id=id).first()
 
-        #save review method
-        new_review.save_review()
-        return redirect(url_for('.movie',id = movie.id ))
-
-    title = f'{movie.title} review'
-    return render_template('new_review.html',title = title, review_form=form, movie=movie)
-
-
-@main.route('/user/<uname>')
-def profile(uname):
-    user = User.query.filter_by(username = uname).first()
-
-    if user is None:
+    if category is None:
         abort(404)
 
-    return render_template("profile/profile.html", user = user)
+    if form.validate_on_submit():
+        pitch_content = form.pitch_content.data
+        new_pitch = Pitch(pitch_content=pitch_content,category_id= category.id,user_id=current_user.id)
+        new_pitch.save_pitch()
+        return redirect(url_for('.category', id=category.id))
 
+    return render_template('new_pitch.html',Pitch_form = form, category=category)
 
-@main.route('/user/<uname>/update',methods = ['GET','POST'])
-@login_required
-def update_profile(uname):
-    user = User.query.filter_by(username = uname).first()
-    if user is None:
+@main.route('/categories/<int:id>')
+def category(id):
+    category = Category.query.get(id)
+    if category is None:
         abort(404)
 
-    form = UpdateProfile()
+    pitches = Pitch.get_pitches(id)
+    return render_template('category.html',pitches=pitches,category=category)
 
-    if form.validate_on_submit():
-        user.bio = form.bio.data
-
-        db.session.add(user)
-        db.session.commit()
-
-        return redirect(url_for('.profile',uname=user.username))
-
-    return render_template('profile/update.html',form =form)
-
-
-@main.route('/user/<uname>/update/pic',methods= ['POST'])
+@main.route('/add/category', methods=['GET','POST'])
 @login_required
-def update_pic(uname):
-    user = User.query.filter_by(username = uname).first()
-    if 'photo' in request.files:
-        filename = photos.save(request.files['photo'])
-        path = f'photos/{filename}'
-        user.profile_pic_path = path
-        user_photo = PhotoProfile(pic_path = path,user = user)
-        db.session.commit()
-    return redirect(url_for('main.profile',uname=uname))
+def new_category():
+
+    form = CategoryForm()
+    if form.validate_on_submit():
+        new_category = Category(name=name)
+        new_category.save_category()
+
+        return redirect(url_for('.index'))
+
+    title = 'New category'
+    return render_template('new_category.html',category_form = form,title=title)
+
+
+@main.route('/viewPitch/<int:id>', methods=['GET','POST'])
+@login_required
+def viewPitch(id):
+    '''
+    Function the returns a single pitch for comment to be added
+    '''
+
+    print(id)
+    pitches = Pitch.query.get(id)
+    if pitches is None:
+        abort(404)
+
+    comment = comments.get_comments(id)
+    return render_template('viewPitch.html',pitches=pitches, comment=comment, category_id=id)
 
 
 
-# @main.route('/review/<int:id>')
-# def single_review(id):
-#     review=Review.query.get(id)
-#     if review is None:
-#         abort(404)
-#     format_review = markdown2.markdown(review.movie_review,extras=["code-friendly", "fenced-code-blocks"])
-#     return render_template('review.html',review = review,format_review=format_review)
+# add comment
+
+@main.route('/writeComment/<int:id>',methods=['GET','POST'])
+@login_required
+def leaveComment(id):
+    form = CommentForm()
+    title = 'Leave comment'
+    pitches = Pitch.query.filter_by(id=id).first()
+
+
+    if pitches is None:
+        abort(404)
+    if form.validate_on_submit():
+        pitch_comment = form.pitch_comment.data
+        new_comment = Comments(pitch_comment=pitch_comment,user_id=current_user.id, pitches_id=pitches.id)
+        new_comment.save_comment()
+        return redirect(url_for('.viewPitch',id=pitches.id))
+
+    return render_template('leaveComment.html',CommentForm=form, title=title)
+
+  
+
+
