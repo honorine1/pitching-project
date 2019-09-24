@@ -1,7 +1,3 @@
-
-
-
-
 {% extends 'base.html' %}
 {% import 'bootstrap/wtf.html' as wtf%}
 
@@ -13,6 +9,17 @@
 
 <!-- Content block -->
 {% block content %}
+
+
+
+<div class='row'>
+    <div class='col-md-2 col-ld-2'></div>
+    <div class='col-md-8 col-ld-8'>
+       <h4>choose pitch category</h4> 
+    </div>
+    <div class='col-md-2 col-ld-2'></div>
+
+</div>
     <title> {{ title }} </title>
 
     <div class="container">
@@ -20,10 +27,13 @@
             <div class="col-md-2 col-lg-2">
             </div>
             <div class=" col-xs-12 col-sm-12 col-md-8 col-lg-8 create-group">
+               
+                
                 {{ wtf.quick_form(category_form) }}
             </div>
             <div class="col-md-2 col-lg-2">
             </div>
         </div>
+        
     </div>
 {% endblock %}

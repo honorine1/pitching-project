@@ -17,15 +17,10 @@ class User(UserMixin,db.Model):
     password = db.Column(db.String(255),unique = True,index = True)
     password_hash = db.Column(db.String(255))
     bio = db.Column(db.String(255))
-    #password_secure = db.Column(db.String(255))
-    
-    #role_id = db.Column(db.Integer,db.ForeignKey('roles.id'))
     profile_pic_path = db.Column(db.String())
-    # password_secure = db.Column(db.String(255))
-    
     comment = db.relationship('Comments',backref = 'user',lazy = "dynamic")
     pitches = db.relationship('Pitch',backref = 'user',lazy = "dynamic")
-    # vote = db.relationship("Votes", backref ="user", lazy="dynamic")
+   
 
     @property
     def password(self):
@@ -33,15 +28,12 @@ class User(UserMixin,db.Model):
 
     @password.setter
     def password(self,password):
-        # self.pass_secure = generate_password_hash(password)
-        self.password_hash = generate_password_hash(password)
+       self.password_hash = generate_password_hash(password)
 
     def verify_password(self,password):
-        # return check_password_hash(self.pass_secure,password)
         return check_password_hash(self.password_hash,password)
 
-
-    def __repr__(self):
+def __repr__(self):
         return f'User {self.username}'
 
 class Comments(db.Model):
@@ -69,8 +61,9 @@ class Category(db.Model):
     __tablename__ = 'categories'
 
     id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(255))
-    description = db.Column(db.String(255))
+    category = db.Column(db.String(255))
+    pitches = db.relationship('Pitch',backref = 'categories', lazy='dynamic')
+    # description = db.Column(db.String(255))
 
     def save_category(self):
         db.session.add(self)
@@ -99,7 +92,7 @@ class Pitch(db.Model):
 
 
     def save_pitch(self):
-        db.session.add(self)
+        db.session.add(self)  
         db.session.commit()
 
     @classmethod
@@ -109,4 +102,5 @@ class Pitch(db.Model):
     @classmethod
     def get_pitches(cls,id):
         pitches = Pitch.query.filter_by(category_id=id).all()
+        # pitches = Pitch.query.order_by(pitch_id=id).pitch().all()
         return pitches

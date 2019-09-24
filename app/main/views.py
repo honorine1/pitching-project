@@ -3,8 +3,10 @@ from flask import render_template,request,redirect,url_for,abort
 from . import main
 from .forms import PitchForm,CommentForm,CategoryForm
 from ..models import  User,Pitch,Comments,Category
+from .forms import PitchForm, CommentForm
 from flask_login import login_required, current_user
-from .. import db 
+from .. import db
+import datetime
 
 
 
@@ -12,35 +14,30 @@ from .. import db
 @main.route('/')
 def index():
 
+
     '''
     View root page function that returns the index page and its data
     '''
 
     category = Category.get_categories(id) 
+  
 
     title = 'Home - Welcome '
-    return render_template('index.html', title = title, categories = category)
+    return render_template('index.html', title = title,categories=category)
 
-
-# to add new pitch
-
-@main.route('/category/new-pitch/<int:id>',methods=['GET','POST'])
-@login_required
-def new_pitch(id):
-
-    form = PitchForm()
+@main.route('/add/pitch')
+def new_pitch():
+    form=PitchForm()
     category = Category.query.filter_by(id=id).first()
-
     if category is None:
         abort(404)
-
+    
     if form.validate_on_submit():
-        pitch_content = form.pitch_content.data
-        new_pitch = Pitch(pitch_content=pitch_content,category_id= category.id,user_id=current_user.id)
+        pitch_content=form.pitch_content.data
+        new_pitch = Pitch(pitch_content=pitch_content,category_id= category.id,user_id=current_user.id) 
         new_pitch.save_pitch()
-        return redirect(url_for('.category', id=category.id))
-
-    return render_template('new_pitch.html',Pitch_form = form, category=category)
+        return redirect(url_for('.category', id= category.id))
+    return render_template('newPitch.html',Pitch_form = form, category=category)
 
 @main.route('/categories/<int:id>')
 def category(id):
@@ -54,32 +51,33 @@ def category(id):
 @main.route('/add/category', methods=['GET','POST'])
 @login_required
 def new_category():
-
     form = CategoryForm()
+    category=form.category.data
+    
     if form.validate_on_submit():
-        new_category = Category(name=name)
+        new_category = Category(category=category)
         new_category.save_category()
 
-        return redirect(url_for('.index'))
+        return redirect(url_for('.new_pitch'))
 
     title = 'New category'
     return render_template('new_category.html',category_form = form,title=title)
 
 
-@main.route('/viewPitch/<int:id>', methods=['GET','POST'])
-@login_required
-def viewPitch(id):
-    '''
-    Function the returns a single pitch for comment to be added
-    '''
+# @main.route('/viewPitch/<int:id>', methods=['GET','POST'])
+# @login_required
+# def viewPitch(id):
+#     '''
+#     Function the returns a single pitch for comment to be added
+#     '''
 
-    print(id)
-    pitches = Pitch.query.get(id)
-    if pitches is None:
-        abort(404)
+#     print(id)
+#     pitches = Pitch.query.get(id)
+#     if pitches is None:
+#         abort(404)
 
-    comment = comments.get_comments(id)
-    return render_template('viewPitch.html',pitches=pitches, comment=comment, category_id=id)
+#     comment = comments.get_comments(id)
+#     return render_template('viewPitch.html',pitches=pitches, comment=comment, category_id=id)
 
 
 

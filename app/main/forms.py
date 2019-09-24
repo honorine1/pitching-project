@@ -1,7 +1,7 @@
 
 
 from flask_wtf import FlaskForm
-from wtforms import StringField,TextAreaField,SubmitField,ValidationError
+from wtforms import StringField,TextAreaField,RadioField,SubmitField,ValidationError
 from wtforms.validators import Required,Email
 
 class PitchForm(FlaskForm):
@@ -13,7 +13,7 @@ class CommentForm():
    submit = SubmitField('submit')
 
 class CategoryForm(FlaskForm):
-   name = StringField('category Name',validators = [Required()])
+   category = RadioField('Label', choices=[('interview', 'interview'),('science','science'), ('product', 'product'),('technology','technology'),('promotion', 'promotion'),('artist','artist')])
    submit = SubmitField('submit')
 
 
